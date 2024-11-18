@@ -45,7 +45,8 @@ public class s1 extends HttpServlet {
                 // Creamos el objeto conexion
                 Connection conn = new ConnMysql().getConnection();
                 // Creamos un objeto Statement
-                Statement instruccion = conn.createStatement();
+                Statement instruccion = conn.createStatement(
+                        ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 // Creamos el query
                 String sql = "select * from t1";
                 ResultSet result = instruccion.executeQuery(sql);
@@ -55,6 +56,23 @@ public class s1 extends HttpServlet {
                     out.println("Apellidos:" + result.getString(3));
                     out.println("<br>");
                 }
+                
+                // Para borrar una fila.
+                result.absolute(4); // Nos situamos sobre la fila deseada (Primera).
+                result.deleteRow(); // Borramos.
+                
+                // Para actualizar un campo.
+                result.absolute(3);
+                result.updateString("Nombre", "Juana");
+                result.updateRow();
+                
+                // Para insertar una fila.
+                result.moveToInsertRow();
+                result.updateInt(1, 4);
+                result.updateString(2, "Salazar");
+                result.updateString("Apellidos", "Cortés");
+                result.insertRow();
+                
                 // Cerrar cada uno de los objetos utilizados
                 result.close();
                 instruccion.close();
