@@ -4,9 +4,6 @@
  */
 package servlet;
 
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.Connection;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,6 +15,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.ConnMysql;
+import java.sql.*;
 
 /**
  *
@@ -41,43 +39,18 @@ public class s1 extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
 
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>BD uno - Ejercicio 01</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<form action='#' method='POST'>");
+            // Obtenemos el id del registro seleccionado.
+            int id_registro = Integer.parseInt(request.getParameter("borrar"));
+
+            // Creamos el objeto conexion
+            Connection conn = new ConnMysql().getConnection();
+            // Creamos un objeto Statement
+            Statement instruccion = conn.createStatement(
+                    ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            // Creamos el query
+            String sql = "DELETE datos WHERE ID = " + id_registro;
+            ResultSet rs = instruccion.executeQuery(sql);
             
-            try {
-                // Creamos el objeto conexion
-                Connection conn = new ConnMysql().getConnection();
-                // Creamos un objeto Statement
-                Statement instruccion = conn.createStatement(
-                        ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                // Creamos el query
-                String sql = "select * from t1";
-                ResultSet rs = instruccion.executeQuery(sql);
-                // Creamos una fila por cada registro.
-                while (rs.next()) {
-                    out.println("<p>");
-                    out.println(rs.getString(2) + " ");
-                    out.println(rs.getString(3));
-                    out.println("<button name='button' value='" + rs.getInt(1) + "'>Borrar</button>");
-                    out.println("</p>");
-                }
-                
-                // Cerrar cada uno de los objetos utilizados
-                rs.close();
-                instruccion.close();
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            
-            out.println("</form>");
-            out.println("</body>");
-            out.println("</html>");
         }
     }
 
