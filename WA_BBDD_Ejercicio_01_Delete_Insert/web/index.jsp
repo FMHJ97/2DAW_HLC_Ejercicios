@@ -75,8 +75,8 @@
             <tr>
                 <td></td>
                 <td><input type="text" name="nombre"></td>
-                <td><input type="text" name="nota"></td>
-                <td><input type="text" name="fecha_nac"></td>
+                <td><input type="number" name="nota"></td>
+                <td><input type="date" name="fecha_nac"></td>
                 <td><input type="submit" name="insertar" value="Insertar"></td>
             </tr>
             </table>
