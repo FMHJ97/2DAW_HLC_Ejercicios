@@ -1,6 +1,6 @@
 <%-- 
-    Document   : index
-    Created on : 25 nov 2024, 14:37:28
+    Document   : admin
+    Created on : Nov 25, 2024, 8:02:49 PM
     Author     : FMHJ97
 --%>
 
@@ -11,7 +11,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Index - CRUD (Liga Fútbol)</title>
+        <title>Admin - CRUD (Liga Fútbol)</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <style>
@@ -19,7 +19,7 @@
                 box-sizing: border-box;
             }
             .row {
-                text-align: center;
+                text-align: center
             }
             .formulario {
                 display: flex;
@@ -43,19 +43,19 @@
     <body>
         <div class="container">
             <div class="row">
-                <h1 class="my-5">Index - CRUD (Liga Fútbol)</h1>
+                <h1 class="my-5">Admin - CRUD (Liga Fútbol)</h1>
                 <table class="table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Escudo</th>
-                            <th scope="col">Equipo</th>
-                            <th scope="col">Puntos</th>
-                            <th scope="col">Victorias</th>
-                            <th scope="col">Empates</th>
-                            <th scope="col">Derrotas</th>
-                            <th scope="col">Goles F</th>
-                            <th scope="col">Goles C</th>
+                            <th scope="col"></th>
+                            <th scope="col">Equipo Local</th>
+                            <th scope="col">Goles Local</th>
+                            <th scope="col">Goles Visitante</th>
+                            <th scope="col">Equipo Visitante</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,21 +67,27 @@
                                 Statement instruccion = conn.createStatement(
                                         ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
                                 // Creamos el query
-                                String sql = "SELECT * from equipo ORDER BY puntos DESC";
+                                String sql = "SELECT t1.id, t1.id_local, t1.local, t1.g1, t1.g2, eq.nombre 'visitante', eq.id 'id_local' "
+                                + "FROM equipo eq JOIN "
+                                + "(SELECT p.id, eq.nombre 'local', eq.id 'id_local', p.g1, p.g2, p.e2 'visit' FROM partido p JOIN equipo eq WHERE p.e1 = eq.id) t1 "
+                                + "WHERE eq.id = t1.visit";
+                                
                                 ResultSet rs = instruccion.executeQuery(sql);
                                 // Creamos una fila por cada registro.
                                 int cont = 1;
                                 while (rs.next()) {
                                     out.println("<tr>");
+                                    out.println("<form action='s2' method='POST'>");
                                     out.println("<th scope='row'>" + cont + "</th>");
-                                    out.println("<td><img src='./assets/" + rs.getInt(1) + ".png'></td>");
-                                    out.println("<td>" + rs.getString(2) + "</td>");
-                                    out.println("<td>" + rs.getInt(3) + "</td>");
+                                    out.println("<td><img src='./assets/" + rs.getInt(2) + ".png'></td>");
+                                    out.println("<td>" + rs.getString(3) + "</td>");
                                     out.println("<td>" + rs.getInt(4) + "</td>");
                                     out.println("<td>" + rs.getInt(5) + "</td>");
-                                    out.println("<td>" + rs.getInt(6) + "</td>");
-                                    out.println("<td>" + rs.getInt(7) + "</td>");
-                                    out.println("<td>" + rs.getInt(8) + "</td>");
+                                    out.println("<td>" + rs.getString(6) + "</td>");
+                                    out.println("<td><img src='./assets/" + rs.getInt(7) + ".png'></td>");
+                                    out.println("<td><button class='btn btn-warning' type='submit' name='editar' value='" + rs.getInt(1) + "'>Editar</td>");
+                                    out.println("<td><button class='btn btn-danger' type='submit' name='borrar' value='" + rs.getInt(1) + "'>Borrar</td>");
+                                    out.println("</form>");
                                     out.println("</tr>");
                                     cont++;
                                 }
@@ -95,27 +101,6 @@
                         %>
                     </tbody>
                 </table>
-                <%
-                    // Si existe una sesión admin abierta, mostramos un botón
-                    // con el que mostraremos el panel de admin.jsp
-                    if (session.getAttribute("admin") != null) {
-                %>
-                <a href="admin.jsp"><button class="btn btn-primary">Ir a Administrador</button></a>
-                <%
-                } else {
-                %>
-                <form class="formulario" action="s1" method="POST">
-                    <input type="password" name="pwd" class="form-control" placeholder="Password">
-                    <button type="submit" class="btn btn-primary">Administrador</button>
-                </form>
-                <%
-                    }
-                    // Comprobamos si existe un atributo msg en la sesión.
-                    String mensaje = (String) session.getAttribute("msg");
-                    if (mensaje != null) {
-                        out.println("<span>" + mensaje + "</span>");
-                    }
-                %>
             </div>
         </div>
     </body>
