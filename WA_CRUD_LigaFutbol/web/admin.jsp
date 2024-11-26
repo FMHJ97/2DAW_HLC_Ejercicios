@@ -4,9 +4,19 @@
     Author     : FMHJ97
 --%>
 
+<%@page import="servlet.s1"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.ConnMysql"%>
 <%@page import="java.sql.*"%>
+
+<%
+
+    if (session.getAttribute("admin") == null) {
+        
+    }
+
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -59,8 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%
-                            try {
+                        <%                            try {
                                 // Creamos el objeto conexion
                                 Connection conn = new ConnMysql().getConnection();
                                 // Creamos un objeto Statement
@@ -68,10 +77,10 @@
                                         ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
                                 // Creamos el query
                                 String sql = "SELECT t1.id, t1.id_local, t1.local, t1.g1, t1.g2, eq.nombre 'visitante', eq.id 'id_local' "
-                                + "FROM equipo eq JOIN "
-                                + "(SELECT p.id, eq.nombre 'local', eq.id 'id_local', p.g1, p.g2, p.e2 'visit' FROM partido p JOIN equipo eq WHERE p.e1 = eq.id) t1 "
-                                + "WHERE eq.id = t1.visit";
-                                
+                                        + "FROM equipo eq JOIN "
+                                        + "(SELECT p.id, eq.nombre 'local', eq.id 'id_local', p.g1, p.g2, p.e2 'visit' FROM partido p JOIN equipo eq WHERE p.e1 = eq.id) t1 "
+                                        + "WHERE eq.id = t1.visit";
+
                                 ResultSet rs = instruccion.executeQuery(sql);
                                 // Creamos una fila por cada registro.
                                 int cont = 1;
@@ -99,6 +108,80 @@
                                 e.printStackTrace();
                             }
                         %>
+                        <!-- Fila Insertar -->
+                        <tr>
+                    <form action="s2" method="POST">
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <select class="form-select" name="eq_local">
+                                <%
+                                    try {
+                                        // Creamos el objeto conexion
+                                        Connection conn = new ConnMysql().getConnection();
+                                        // Creamos un objeto Statement
+                                        Statement instruccion = conn.createStatement(
+                                                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                                        // Creamos el query
+                                        String sql = "SELECT * FROM equipo";
+                                        ResultSet rs = instruccion.executeQuery(sql);
+                                        while (rs.next()) {
+                                            out.println("<option value='" + rs.getInt(1) + "'>");
+                                            out.println(rs.getString(2));
+                                            out.println("</option>");
+                                        }
+                                        // Cerrar cada uno de los objetos utilizados
+                                        rs.close();
+                                        instruccion.close();
+                                        conn.close();
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" name="goles_local" placeholder="Goles Equipo Local">
+                        </td>
+                        <td>
+                            <input type="number" name="goles_visit" placeholder="Goles Equipo Visitante">
+                        </td>
+                        <td>
+                            <select class="form-select" name="eq_visit">
+                                <%
+                                    try {
+                                        // Creamos el objeto conexion
+                                        Connection conn = new ConnMysql().getConnection();
+                                        // Creamos un objeto Statement
+                                        Statement instruccion = conn.createStatement(
+                                                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                                        // Creamos el query
+                                        String sql = "SELECT id, nombre FROM equipo";
+                                        ResultSet rs = instruccion.executeQuery(sql);
+                                        while (rs.next()) {
+                                            out.println("<option value='" + rs.getInt(1) + "'>");
+                                            out.println(rs.getString(2));
+                                            out.println("</option>");
+                                        }
+                                        // Cerrar cada uno de los objetos utilizados
+                                        rs.close();
+                                        instruccion.close();
+                                        conn.close();
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>                            
+                        </td>
+                        <td>
+                            <button type="submit" class="btn btn-success" name="insertar">Insertar</button>
+                        </td>
+                        <td></td>
+                        <td>
+                            <button type="submit" class="btn btn-dark" name="cerrar">Cerrar</button>
+                        </td>
+                    </form>
+                    </tr>
                     </tbody>
                 </table>
             </div>
