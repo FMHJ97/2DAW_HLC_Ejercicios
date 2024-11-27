@@ -3,18 +3,14 @@
     Created on : Nov 25, 2024, 8:02:49 PM
     Author     : FMHJ97
 --%>
-
-<%@page import="servlet.s1"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.ConnMysql"%>
 <%@page import="java.sql.*"%>
 
 <%
-
     if (session.getAttribute("admin") == null) {
-        
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-
 %>
 
 <!DOCTYPE html>
@@ -69,7 +65,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%                            try {
+                        <%
+                            try {
                                 // Creamos el objeto conexion
                                 Connection conn = new ConnMysql().getConnection();
                                 // Creamos un objeto Statement
@@ -184,6 +181,13 @@
                     </tr>
                     </tbody>
                 </table>
+                <%
+                    // Comprobamos si existe un atributo msg en la sesión.
+                    String mensaje = (String) session.getAttribute("msg2");
+                    if (mensaje != null) {
+                        out.println("<span>" + mensaje + "</span>");
+                    }
+                %>
             </div>
         </div>
     </body>

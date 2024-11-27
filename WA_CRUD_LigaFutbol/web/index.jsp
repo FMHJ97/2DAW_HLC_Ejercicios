@@ -31,6 +31,7 @@
             }
             a {
                 text-align: start;
+                margin-bottom: 1em;
             }
             span {
                 text-align: start;
@@ -101,12 +102,15 @@
                     if (session.getAttribute("admin") != null) {
                 %>
                 <a href="admin.jsp"><button class="btn btn-primary">Ir a Administrador</button></a>
+                <form class="formulario" action="s1" method="POST">
+                    <button type="submit" name="logout" class="btn btn-dark">Cerrar sesión</button>
+                </form>
                 <%
                 } else {
                 %>
                 <form class="formulario" action="s1" method="POST">
                     <input type="password" name="pwd" class="form-control" placeholder="Password">
-                    <button type="submit" class="btn btn-primary">Administrador</button>
+                    <button type="submit" name="login" class="btn btn-primary">Administrador</button>
                 </form>
                 <%
                     }

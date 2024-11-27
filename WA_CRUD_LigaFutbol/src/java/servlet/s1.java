@@ -21,10 +21,6 @@ import java.sql.*;
  */
 @WebServlet(name = "s1", urlPatterns = {"/s1"})
 public class s1 extends HttpServlet {
-    
-    public static void getEquipos() {
-       
-    }
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,38 +36,60 @@ public class s1 extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            
-            // Obtenemos la clave introducida.
-            String pwd = request.getParameter("pwd");
-            
+
             // Abrimos una sesión.
             HttpSession my_session = request.getSession();
 
-            try {
-                // Creamos el objeto conexion
-                Connection conn = new ConnMysql().getConnection();
-                // Creamos un objeto Statement
-                Statement instruccion = conn.createStatement(
-                        ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                // Creamos el query
-                String sql = "SELECT pass FROM clave";
-                ResultSet rs = instruccion.executeQuery(sql);
-                // Seleccionamos el registro.
-                rs.absolute(1);
-                // Comprobamos si la clave introducida coincide con la clave en BD.
-                if (rs.getString(1).equalsIgnoreCase(pwd)) {
-                    my_session.setAttribute("admin", 1);
-                    request.getRequestDispatcher("admin.jsp").forward(request, response);
-                } else {
-                    my_session.setAttribute("msg", "Clave incorrecta!");
-                    request.getRequestDispatcher("index.jsp").forward(request, response);
+            // Si hemos pulsado sobre Cerrar sesión.
+            // Y hemos hecho login (Administrador).
+            if (request.getParameter("logout") != null
+                    && my_session.getAttribute("admin") != null) {
+                // Borro los atributos de la sesión.
+                my_session.removeAttribute("admin");
+                my_session.removeAttribute("msg");
+                my_session.removeAttribute("msg2");
+                // Redirijo a index.
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+            else
+            // Si hemos pulsado sobre Administrador.
+            if (request.getParameter("login") != null) {
+
+                // Obtenemos la clave introducida.
+                String pwd = request.getParameter("pwd");
+
+                try {
+                    // Creamos el objeto conexion
+                    Connection conn = new ConnMysql().getConnection();
+                    // Creamos un objeto Statement
+                    Statement instruccion = conn.createStatement(
+                            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                    // Creamos el query
+                    String sql = "SELECT pass FROM clave";
+                    ResultSet rs = instruccion.executeQuery(sql);
+                    // Seleccionamos el registro.
+                    rs.absolute(1);
+                    // Sacamos la clave.
+                    String clave = rs.getString(1);
+                    // Cerrar cada uno de los objetos utilizados
+                    rs.close();
+                    instruccion.close();
+                    conn.close();
+                    // Comprobamos si la clave introducida coincide con la clave en BD.
+                    if (clave.equalsIgnoreCase(pwd)) {
+                        my_session.setAttribute("admin", 1);
+                        my_session.removeAttribute("msg");
+                        request.getRequestDispatcher("admin.jsp").forward(request, response);
+                    } else {
+                        my_session.setAttribute("msg", "Clave incorrecta!");
+                        request.getRequestDispatcher("index.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-                // Cerrar cada uno de los objetos utilizados
-                rs.close();
-                instruccion.close();
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            }
+            else {
+                request.getRequestDispatcher("index.jsp").forward(request, response);
             }
 
         }
