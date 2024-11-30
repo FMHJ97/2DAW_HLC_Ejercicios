@@ -1,20 +1,18 @@
 <%-- 
-    Document   : editar
-    Created on : Nov 26, 2024, 8:47:05 PM
+    Document   : admin
+    Created on : Nov 25, 2024, 8:02:49 PM
     Author     : FMHJ97
 --%>
-
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.ConnMysql"%>
 <%@page import="java.sql.*"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
-    ResultSet registro = (ResultSet) session.getAttribute("registro");
-    ResultSet equipos = (ResultSet) session.getAttribute("equipos");
+    if (session.getAttribute("admin") == null) {
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
 
-    // Equipo local y visitante del registro.
-    int eq_local = registro.getInt(2);
-    int eq_visit = registro.getInt(3);
+    Object[] registro = (Object[]) session.getAttribute("registro");
 %>
 
 <!DOCTYPE html>
@@ -24,61 +22,148 @@
         <title>Editar - CRUD (Liga Fútbol)</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            .row {
+                text-align: center
+            }
+            .formulario {
+                display: flex;
+                flex-direction: row;
+                gap: 2em;
+            }
+            .form-control {
+                width: auto;
+            }
+            a {
+                text-align: start;
+            }
+            span {
+                text-align: start;
+                color: red;
+                font-size: 1.2rem;
+                padding-top: 1em;
+            }
+        </style>
     </head>
     <body>
-        <h1>Editar - CRUD (Liga Fútbol)</h1>
-        <form action="s3" method="POST">
-            <select class="form-select" name="eq_local">
+        <div class="container">
+            <div class="row">
+                <h1 class="my-5">Editar - CRUD (Liga Fútbol)</h1>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col"></th>
+                            <th scope="col">Equipo Local</th>
+                            <th scope="col">Goles Local</th>
+                            <th scope="col">Goles Visitante</th>
+                            <th scope="col">Equipo Visitante</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%
+                            out.println("<tr>");
+                            out.println("<th scope='row'>" + 1 + "</th>");
+                            out.println("<td><img src='./assets/" + registro[1] + ".png'></td>");
+                            out.println("<td>" + registro[2] + "</td>");
+                            out.println("<td>" + registro[3] + "</td>");
+                            out.println("<td>" + registro[4] + "</td>");
+                            out.println("<td>" + registro[5] + "</td>");
+                            out.println("<td><img src='./assets/" + registro[6] + ".png'></td>");
+                            out.println("<td></td>");
+                            out.println("<td></td>");
+                            out.println("</tr>");
+                        %>
+                        <!-- Fila Modificar -->
+                        <tr>
+                    <form action="s3" method="POST">
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <select class="form-select" name="eq_local">
+                                <%
+                                    try {
+                                        // Creamos el objeto conexion
+                                        Connection conn = new ConnMysql().getConnection();
+                                        // Creamos un objeto Statement
+                                        Statement instruccion = conn.createStatement(
+                                                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                                        // Creamos el query
+                                        String sql = "SELECT * FROM equipo";
+                                        ResultSet rs = instruccion.executeQuery(sql);
+                                        while (rs.next()) {
+                                            out.println("<option value='" + rs.getInt(1) + "'>");
+                                            out.println(rs.getString(2));
+                                            out.println("</option>");
+                                        }
+                                        // Cerrar cada uno de los objetos utilizados
+                                        rs.close();
+                                        instruccion.close();
+                                        conn.close();
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" name="goles_local" placeholder="Goles Equipo Local">
+                        </td>
+                        <td>
+                            <input type="number" name="goles_visit" placeholder="Goles Equipo Visitante">
+                        </td>
+                        <td>
+                            <select class="form-select" name="eq_visit">
+                                <%
+                                    try {
+                                        // Creamos el objeto conexion
+                                        Connection conn = new ConnMysql().getConnection();
+                                        // Creamos un objeto Statement
+                                        Statement instruccion = conn.createStatement(
+                                                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                                        // Creamos el query
+                                        String sql = "SELECT id, nombre FROM equipo";
+                                        ResultSet rs = instruccion.executeQuery(sql);
+                                        while (rs.next()) {
+                                            out.println("<option value='" + rs.getInt(1) + "'>");
+                                            out.println(rs.getString(2));
+                                            out.println("</option>");
+                                        }
+                                        // Cerrar cada uno de los objetos utilizados
+                                        rs.close();
+                                        instruccion.close();
+                                        conn.close();
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                %>
+                            </select>                            
+                        </td>
+                        <td>
+                            <button type="submit" class="btn btn-success" name="actualizar" value="<% out.print(registro[0]); %>">Actualizar</button>
+                        </td>
+                        <td></td>
+                        <td>
+                            <button type="submit" class="btn btn-dark" name="cancelar">Cancelar</button>
+                        </td>
+                    </form>
+                    </tr>
+                    </tbody>
+                </table>
                 <%
-                    try {
-                        while (equipos.next()) {
-                            int id_equipo = equipos.getInt(1);
-                            String nombre_equipo = equipos.getString(2);
-                %>
-                <option value="<%= id_equipo%>" 
-                        <% if (id_equipo == eq_local) out.print("selected");%>>
-                        <%= nombre_equipo%>
-                </option>
-                <%
-                        }
-                        equipos.absolute(1); // Reiniciamos cursor.
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    // Comprobamos si existe un atributo msg en la sesión.
+                    String mensaje = (String) session.getAttribute("msg2");
+                    if (mensaje != null) {
+                        out.println("<span>" + mensaje + "</span>");
                     }
                 %>
-            </select>
-            <input type="number" name="goles_local" value="<% out.println(goles_local); %>">
-            <select class="form-select" name="eq_visit" value="<% out.println(goles_visit); %>">
-                <%
-                    try {
-                        // Creamos el objeto conexion
-                        Connection conn = new ConnMysql().getConnection();
-                        // Creamos un objeto Statement
-                        Statement instruccion = conn.createStatement(
-                                ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                        // Creamos el query
-                        String sql = "SELECT * FROM equipo";
-                        ResultSet rs = instruccion.executeQuery(sql);
-                        while (rs.next()) {
-                            out.println("<option value='" + rs.getInt(1) + "'");
-                            // Seleccionamos el equipo según el registro para editar.
-                            if (rs.getInt(1) == eq_visit) {
-                                out.println("selected=''>");
-                            }
-                            out.println(rs.getString(2));
-                            out.println("</option>");
-                        }
-                        // Cerrar cada uno de los objetos utilizados
-                        rs.close();
-                        instruccion.close();
-                        conn.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                %>
-            </select>
-            <input type="number" name="goles_visit">
-            <button type="submit" name="update" value="">Actualizar</button>
-        </form>
+            </div>
+        </div>
     </body>
 </html>

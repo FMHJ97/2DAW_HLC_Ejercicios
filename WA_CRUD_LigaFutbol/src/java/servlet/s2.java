@@ -49,26 +49,37 @@ public class s2 extends HttpServlet {
             if (request.getParameter("editar") != null) {
                 // Obtenemos el id del registro seleccionado.
                 int id_registro = Integer.parseInt(request.getParameter("editar"));
-                
+
                 try {
                     // Creamos el objeto conexion
                     Connection conn = new ConnMysql().getConnection();
                     // Creamos un objeto Statement
                     Statement instruccion = conn.createStatement(
                             ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                    
-                    // Creamos las consultas.
-                    String sql = "SELECT * FROM partido WHERE id = " + id_registro;
-                    String sql2 = "SELECT * FROM equipo";
-                    ResultSet rs_registro = instruccion.executeQuery(sql);
-                    ResultSet rs_equipos = instruccion.executeQuery(sql2);
-                    
-                    // Guardamos el registro en la sesión.
-                    my_session.setAttribute("registro", rs_registro);
-                    my_session.setAttribute("equipos", rs_equipos);
+
+                    // Creamos el query
+                    String sql = "SELECT t1.id, t1.id_local, t1.local, t1.g1, t1.g2, eq.nombre 'visitante', eq.id 'id_local' "
+                            + "FROM equipo eq JOIN "
+                            + "(SELECT p.id, eq.nombre 'local', eq.id 'id_local', p.g1, p.g2, p.e2 'visit' FROM partido p JOIN equipo eq WHERE p.e1 = eq.id) t1 "
+                            + "WHERE eq.id = t1.visit AND t1.id = " + id_registro;
+
+                    ResultSet rs = instruccion.executeQuery(sql);
+                    if (rs.next()) {
+                        // Guarda los datos en un array
+                        Object[] registro = new Object[7];
+                        registro[0] = rs.getInt(1);             // ID Registro
+                        registro[1] = rs.getInt(2);             // ID Equipo local
+                        registro[2] = rs.getString(3);          // Nombre equipo local
+                        registro[3] = rs.getInt(4);             // Goles euipo local
+                        registro[4] = rs.getInt(5);             // Goles equipo visitante
+                        registro[5] = rs.getString(6);          // Nombre equipo visitante
+                        registro[6] = rs.getInt(7);             // ID Equipo visitante
+
+                        // Guarda el array en la sesión
+                        my_session.setAttribute("registro", registro);
+                    }
                     // Cerrar cada uno de los objetos utilizados
-                    rs_registro.close();
-                    rs_equipos.close();
+                    rs.close();
                     instruccion.close();
                     conn.close();
                     // Redirigimos a la página anterior.
