@@ -41,7 +41,6 @@ public class s1 extends HttpServlet {
             HttpSession my_session = request.getSession();
 
             // Si hemos pulsado sobre Cerrar sesión.
-            // Y hemos hecho login (Administrador).
             if (request.getParameter("logout") != null
                     && my_session.getAttribute("admin") != null) {
                 // Borro los atributos de la sesión.
