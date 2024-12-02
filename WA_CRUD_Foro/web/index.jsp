@@ -5,6 +5,13 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    if (session.getAttribute("login") != null) {
+        request.getRequestDispatcher("foro.jsp").forward(request, response);
+    }
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
