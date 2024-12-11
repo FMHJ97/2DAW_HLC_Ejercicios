@@ -5,15 +5,33 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    if (session.getAttribute("autenticado") != null) {
+        request.getRequestDispatcher("foro.jsp").forward(request, response);
+    }
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <title>Examen HLC - DGT (Index)</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <img src="img/logo.png" width="300px" height="150px"/>
+        <h1>Inicio de Sesión</h1>
+        <form action="s1" action="POST">
+            <p>Usuario: <input type="text" name="user"></p>
+            <p>Contraseña: <input type="password" name="pwd"></p>
+            <button type="submit">Iniciar sesión</button>
+        </form>
+        <%
+            if (request.getAttribute("msg") != null) {
+            String msg = (String)request.getAttribute("msg");
+            out.println("<br>");
+            out.println(msg);
+            }
+        %>
     </body>
 </html>
