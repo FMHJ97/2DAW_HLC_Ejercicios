@@ -39,11 +39,52 @@ public class s1 extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
 
+            if (request.getParameter("editar") != null) {
+                // Obtenemos el id del registro seleccionado.
+                int id_registro = Integer.parseInt(request.getParameter("editar"));
+            }
+            
+            // En caso de pulsar Editar.
+            if (request.getParameter("editar") != null) {
+                // Obtenemos el id del registro seleccionado.
+                int id_registro = Integer.parseInt(request.getParameter("editar"));
+                
+                // Obtenemos los valores de los input.
+                String nombre = request.getParameter("nombre");
+                Integer nota = Integer.parseInt(request.getParameter("nota"));
+                Date fecha_nac = Date.valueOf(request.getParameter("fecha_nac"));    
+                
+                try {
+                    // Creamos el objeto conexion
+                    Connection conn = new ConnMysql().getConnection();
+                    // Creamos un objeto Statement
+                    Statement instruccion = conn.createStatement(
+                            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                    // Obtenemos el registro a modificar.
+                    String sql = "SELECT * FROM datos WHERE ID = " + id_registro;
+                    ResultSet rs = instruccion.executeQuery(sql);
+                    // Procedemos a modificar el registro.
+                    rs.absolute(1);
+                    rs.updateString(2, nombre);
+                    rs.updateInt(3, nota);
+                    rs.updateDate(4, fecha_nac);
+                    rs.updateRow();
+                    // Cerrar cada uno de los objetos utilizados
+                    rs.close();
+                    instruccion.close();
+                    conn.close();
+                    // Redirigimos a index.jsp
+                    request.getRequestDispatcher("index.jsp").forward(request, response);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            
             // En caso de pulsar Borrar.
             if (request.getParameter("borrar") != null) {
                 // Obtenemos el id del registro seleccionado.
                 int id_registro = Integer.parseInt(request.getParameter("borrar"));
-
+                
                 try {
                     // Creamos el objeto conexion
                     Connection conn = new ConnMysql().getConnection();
